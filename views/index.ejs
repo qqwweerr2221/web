@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>To-Do-List</title>
+		<link href="css/bootstrap/3.3.6/bootstrap.min.css" rel="stylesheet" />
+		<script src="js/jquery-1.11.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" href="css/index.css" />
+		<script src="/js/check_sub.js"></script>
+		<script type="text/javascript" src="js/scrollReveal.js"></script>
+		<link href="css/detail.css" rel="stylesheet" />
+		<script src="js/index.js"></script>
+	</head>
+
+	<body>
+		<div id="back" style="display: none; position:absolute; width:100%; height: 100%; top: 0; left: 0; z-index: 500; background: rgba(0, 78, 157, .6);" disabled="disabled">
+		</div>
+		<div class="container-fluid" style="height: 800px;padding-top: 10px;">
+			
+			<div class="col-md-3" style="background: white;height: 100%;padding-top: 10px;border-radius: 5px; overflow: auto;">
+				<div class="list-group">
+					<div class="list-group-item" style="height: 66px; padding: 10px 15px;border: 1px solid gray;">
+						<form method="post" action="/search" onsubmit="return search_check()">
+							<img src="images/head.png" width="55px" height="55px" oncontextmenu="home(event)" />
+							<input class="search" type="text" onkeyup="tips(this)" id="search_title" name="search_title" placeholder="请输入待办清单" />
+							<div style="text-align: center;background: red; float: right; width: 15%;height: 45px;border-left: 1px solid gray;">
+								<button type="submit" style="width: 100%; height: 100%;background: white; border: none;">
+									<span class="glyphicon glyphicon-search icon" style="color: gray; line-height: 45px;font-size: 25px;"></span>
+								</button>
+							</div>
+						</form>
+					</div>
+					
+					
+					</a>
+					<a href="/index?list=2" class="list-group-item unable <%=list_flag==2?'active':'' %>">
+						<span class="glyphicon glyphicon-hourglass icon" aria-hidden="true"></span> 待办事项
+					</a>
+					<a href="/index?list=3" class="list-group-item unable <%=list_flag==3?'active':'' %>" oncontextmenu="remove_all(event)">
+						<span class="glyphicon glyphicon-trash icon" aria-hidden="true"></span> 垃圾桶
+					</a>
+					<%for(let i=0;i<left.length;i++){ %>
+					<a href="/index?list=<%=left[i].id %>" class="list-group-item <%=list_flag==left[i].id?'active':'' %>" oncontextmenu="delete_list(event,<%=left[i].id %>)">
+						<span class="glyphicon glyphicon-th-list icon" aria-hidden="true"></span>
+						<%=left[i].title %>
+					</a>
+					<%} %>
+					<a href="#" id="add" class="list-group-item unable">
+						<span class="glyphicon glyphicon-plus icon" aria-hidden="true"></span> 新建清单
+					</a>
+				</div>
+			</div>
+			
+
+			
+			<a href="#" id="a_menu">
+				<div class="menu" id="menu">删除列表</div>
+			</a>
+			
+			<a href="#" id="a_remove">
+				<div class="menu" id="remove">清空回收站</div>
+			</a>
+			
+
+			
+			<div id="newList" style="padding-top: 70px; padding-left: 60px; display: none; width: 560px; height: 200px; background: white; position: absolute; top: 220px; left: 450px; z-index: 1000; border-radius: 5px;">
+				<form method="post" action="/addList">
+					<input type="text" style="margin-right: 20px;" name="listName" class="form-control" placeholder="请输入新建的列表名">
+					<button type="submit" onclick="my_hide()" style="color: white; background: dodgerblue; border: none; border-radius: 5px; width: 60px; height: 33px;">确&nbsp;&nbsp;定</button>
+				</form>
+			</div>
+			
+			
+			<%
+				let now = new Date();
+				let year = now.getFullYear();
+				let month = now.getMonth()+1;
+				let day = now.getDate();
+				if(month < 10) month = "0"+month;
+				if(day < 10) day = "0"+day;
+			%>
+			
+			<div class="col-md-9" style="height: 100%;">
+				<div style="height: 100%; overflow: auto;">
+					<ul class="cbp_tmtimeline">
+						<%if(list_flag != 3 && list_flag != -1){ %>
+						<li>
+							<time class="cbp_tmtime">
+									<span><%=month %>-<%=day %></span>
+									<span><%=year %></span>
+							</time>
+							<div class="cbp_tmicon"></div>
+							<div class="cbp_tmlabel" data-scroll-reveal="enter right over 1s">
+								<span id="tips" style="float: right; color: orange;"></span>
+								<form action="/addThing?list=<%=list_flag %>" method="post" onsubmit="return check()">
+									<span class="wenzi">标题：</span>
+									<input type="text" class="form-control" name="title" id="title" />
+									<div class="clear"></div>
+
+									<span class="wenzi">备注：</span>
+									<textarea type="text" class="form-control" style="margin-bottom: 6px;" name="message" id="message" ></textarea>
+									<div class="clear"></div>
+									
+									<span class="wenzi">时间：</span>
+									<input class="small form-control" id="year" name="year" />
+									<input class="small form-control" id="month" name="month" />
+									<input class="small form-control" id="day" name="day" />
+									<div class="clear"></div>
+									
+									<span class="wenzi">紧急程度：</span>
+									<label class="radio-inline">
+  										<input type="radio" name="urgent" id="inlineRadio1" value="1" checked="checked"> 一般
+									</label>
+									<label class="radio-inline">
+									 	<input type="radio" name="urgent" id="inlineRadio2" value="2"> 重要
+									</label>
+									<label class="radio-inline">
+									  <input type="radio" name="urgent" id="inlineRadio3" value="3"> 很重要
+									</label>
+									<div class="clear"></div>
+									
+									<input type="submit" class="mybtn" value="提  交"></input>
+									<input type="reset" class="mybtn" value="重  置" style="margin-top: -85px;background: orange;"></input>
+									<div class="clear"></div>
+								</form>
+							</div>
+						</li>
+						<%} %>
+
+						<%for(let i=0;i<right.length;i++){
+							let time = right[i].time;
+							let begin = time.indexOf("-");
+							let down = time.substring(0,begin);
+							let up = time.substring(begin+1);
+							let color = right[i].urgent == 1?"greenyellow":(right[i].urgent == 2?"orange":"red");
+							let zi = right[i].urgent == 1?"一般":(right[i].urgent == 2?"重要":"很重要");
+							let done_color = "orange";
+							let done_zi = "正在进行";
+							let done_icon = "glyphicon glyphicon-list-alt";
+							if(right[i].isdelete == 1){
+								done_color = "greenyellow";
+								done_zi = "已经完成";
+								done_icon = "glyphicon glyphicon-ok";
+							}
+						%>
+						<li>
+							<time class="cbp_tmtime">
+									<span><%=up %></span>
+									<span><%=down %></span>
+							</time>
+							<div class="cbp_tmicon"></div>
+							<div class="cbp_tmlabel" style="height: 180px;" data-scroll-reveal="enter right over 1s">
+								<div style="width: 15px; height: 15px; background: <%=color %>; border-radius: 100%; float: left;"></div>
+								<h2 style="float: left; margin-left: 15px;"><%=right[i].title %></h2>
+								<div style="float: right; font-size: 20px; color: <%=done_color %>;">
+									<%=done_zi %>&nbsp;&nbsp;
+									<span class="<%=done_icon %>" aria-hidden="true"></span>
+								</div>
+								<div class="clear"></div>
+								<p>
+									<div style="width: 400px; float: left; overflow: auto;">
+										<div class="left">【急 缓】</div>
+										<div class="right" style="color: <%=color %>;">
+											<%=zi %>
+										</div>
+
+										<div class="clear"></div>
+
+										<div class="left">【备 注】</div>
+										<div class="right">
+											<%=right[i].message %>
+										</div>
+									</div>
+								</p>
+								<%if(list_flag != 3){ %>
+								<a href="/deleteThing?id=<%=right[i].id %>&list=<%=list_flag %> " class="readmore">已经完成&gt;&gt;</a>
+								<%} else{ %>
+								<a href="/removeThing?id=<%=right[i].id %>&list=<%=list_flag %> " class="readmore">彻底删除&gt;&gt;</a>
+								<%} %>
+							</div>
+						</li>
+						<%} %>
+						<%if(right.length == 0){ %>
+						<li>
+							<time class="cbp_tmtime">
+								<span><%=month %>-<%=day %></span>
+								<span><%=year %></span>
+							</time>
+							<div class="cbp_tmicon"></div>
+							<div class="cbp_tmlabel" data-scroll-reveal="enter right over 1s">
+								<h2 style="float: left; margin-left: 15px;">我是有底线的</h2>
+								<div class="clear"></div>
+								<p>
+									<span class="blogpic" style="float: left;">
+										<img src="/images/smile.png" style="width: 150px; height: 150px;" >
+									</span>
+									<div style="width: 400px; float: left; overflow: auto;">
+										这里什么都没有哦<br /><br /> 让我们去其他地方看看吧。。。
+									</div>
+								</p>
+							</div>
+						</li>
+						<%} %>
+					</ul>
+				</div>
+			</div>
+			
+		</div>
+	</body>
+
+</html>

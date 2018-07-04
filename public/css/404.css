@@ -1,0 +1,32 @@
+.content {
+	text-align: center;
+	padding-top: 50px;
+	height: 700px;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+}
+
+.btn {
+	padding: 10px 20px;
+	background: rgb(0, 75, 110);
+	border-radius: 5px;
+}
+
+.left {
+	float: left;
+	height: 500px;
+	width: 60%;
+	text-align: right;
+}
+
+.right {
+	float: right;
+	height: 500px;
+	width: 35%;
+	text-align: left;
+	padding-top: 235px;
+	padding-left: 30px;
+}
